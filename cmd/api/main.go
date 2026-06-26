@@ -20,8 +20,15 @@ func main() {
 	mode := flag.String("mode", "serve", "Run mode: 'scrape', 'serve', 'both', or 'score'")
 	flag.Parse()
 
+	// Replace your old godotenv.Load() block with this:
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+		// On production platforms like Render, a physical .env file won't exist.
+		// We only fail if we're local and missing the file, OR if required variables are empty.
+		if os.Getenv("DATABASE_URL") == "" {
+			log.Printf("Warning: No .env file found and DATABASE_URL is empty: %v", err)
+		} else {
+			log.Println("No .env file found, but running with system environment variables.")
+		}
 	}
 
 	pool, err := database.New()
