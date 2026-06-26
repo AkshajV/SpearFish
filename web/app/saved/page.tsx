@@ -283,11 +283,14 @@ export default function SavedJobs() {
     );
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-8 flex flex-col items-center justify-center text-center">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 text-gray-900 dark:text-white">
           You must be signed in to view saved jobs.
         </h1>
-        <Link href="/" className="text-blue-600 hover:underline">
+        <Link
+          href="/"
+          className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
+        >
           ← Back to Dashboard
         </Link>
       </div>
@@ -295,53 +298,56 @@ export default function SavedJobs() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-8 transition-colors">
       <div className="max-w-6xl mx-auto">
-        {/* Navigation header & Tab Switcher */}
+        {/* Navigation header & Tab Switcher - Mobile Cleaned */}
         <div className="mb-6">
           <Link
             href="/"
-            className="text-sm text-gray-500 hover:text-blue-600 mb-2 inline-block"
+            className="text-xs sm:text-sm text-gray-500 hover:text-blue-600 mb-2 inline-flex items-center gap-1 font-medium transition-colors"
           >
             ← Back to Feed
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Your Tracking Vault
           </h1>
 
-          <div className="flex border-b border-gray-200 dark:border-gray-700">
+          <div className="flex border-b border-gray-200 dark:border-gray-700 w-full overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab("pipeline")}
-              className={`py-2 px-4 font-medium text-sm border-b-2 transition-colors ${
+              className={`py-2.5 px-4 font-medium text-xs sm:text-sm border-b-2 transition-colors whitespace-nowrap flex-1 sm:flex-none text-center ${
                 activeTab === "pipeline"
                   ? "border-blue-500 text-blue-600 dark:text-blue-400"
                   : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
-              Applications Pipeline ({jobs.length})
+              Pipeline ({jobs.length})
             </button>
             <button
               onClick={() => setActiveTab("portals")}
-              className={`py-2 px-4 font-medium text-sm border-b-2 transition-colors ${
+              className={`py-2.5 px-4 font-medium text-xs sm:text-sm border-b-2 transition-colors whitespace-nowrap flex-1 sm:flex-none text-center ${
                 activeTab === "portals"
                   ? "border-blue-500 text-blue-600 dark:text-blue-400"
                   : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
-              Target Portals ({dreamCompanies.length})
+              Portals ({dreamCompanies.length})
             </button>
           </div>
         </div>
 
         {/* Tab 1: Pipeline Interface */}
         {activeTab === "pipeline" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeIn">
-            <div className="lg:col-span-2 grid gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 animate-fadeIn">
+            {/* Main Application Cards Stack */}
+            <div className="lg:col-span-2 grid gap-4 order-2 lg:order-1">
               {loading ? (
-                <p className="text-gray-500">Loading pipeline...</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  Loading pipeline...
+                </p>
               ) : jobs.length === 0 ? (
-                <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <p className="text-gray-500 dark:text-gray-400">
+                <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Pipeline is currently empty.
                   </p>
                 </div>
@@ -349,33 +355,34 @@ export default function SavedJobs() {
                 jobs.map((job) => (
                   <div
                     key={job.id}
-                    className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-l-4 border-l-blue-500 border-gray-200 dark:border-gray-700"
+                    className="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-lg shadow-sm border border-l-4 border-l-blue-500 border-gray-200 dark:border-gray-700 flex flex-col justify-between group hover:border-blue-300 dark:hover:border-blue-700 transition-all"
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">
                           {job.job_title}
                         </h2>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-0.5">
                           {job.company_name}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          📍 {job.location}
+                        <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
+                          <span>📍</span>{" "}
+                          <span className="truncate">{job.location}</span>
                         </p>
                       </div>
                       <button
                         onClick={() => handleUnsave(job.id)}
-                        className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 bg-red-50 dark:bg-red-900/20 rounded"
+                        className="text-xs text-red-500 hover:text-red-700 font-medium px-2.5 py-1.5 bg-red-50 dark:bg-red-900/20 rounded border border-red-100 dark:border-transparent shrink-0 transition-colors"
                       >
                         Remove
                       </button>
                     </div>
-                    <div className="mt-3 text-right">
+                    <div className="mt-4 pt-3 border-t border-gray-50 dark:border-gray-700/50 text-right">
                       <a
                         href={job.job_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block bg-blue-600 text-white text-xs px-3 py-1.5 rounded hover:bg-blue-700 font-medium"
+                        className="inline-block w-full sm:w-auto text-center bg-blue-600 text-white text-xs sm:text-sm px-4 py-2 rounded hover:bg-blue-700 font-medium transition-colors shadow-sm"
                       >
                         Apply ↗
                       </a>
@@ -385,13 +392,13 @@ export default function SavedJobs() {
               )}
             </div>
 
-            {/* Sidebar purely for Logging External Applications */}
-            <div>
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm sticky top-6">
-                <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-sm">
+            {/* Sidebar Purely for Logging External Applications - Stacked on top for mobile layout */}
+            <div className="order-1 lg:order-2">
+              <div className="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm lg:sticky lg:top-6">
+                <h3 className="font-bold text-gray-900 dark:text-white mb-4 text-sm sm:text-base border-b border-gray-100 dark:border-gray-700 pb-2">
                   Log External Application
                 </h3>
-                <form onSubmit={handleAddManual} className="space-y-3">
+                <form onSubmit={handleAddManual} className="space-y-3.5">
                   <div>
                     <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                       Role Title *
@@ -402,7 +409,7 @@ export default function SavedJobs() {
                       value={manualTitle}
                       onChange={(e) => setManualTitle(e.target.value)}
                       placeholder="e.g., Cyber Security Analyst"
-                      className="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded"
+                      className="w-full text-sm p-2.5 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded focus:ring-1 focus:ring-blue-500 outline-none"
                     />
                   </div>
                   <div>
@@ -415,7 +422,7 @@ export default function SavedJobs() {
                       value={manualCompany}
                       onChange={(e) => setManualCompany(e.target.value)}
                       placeholder="e.g., Atlassian"
-                      className="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded"
+                      className="w-full text-sm p-2.5 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded focus:ring-1 focus:ring-blue-500 outline-none"
                     />
                   </div>
                   <div>
@@ -427,7 +434,7 @@ export default function SavedJobs() {
                       value={manualLocation}
                       onChange={(e) => setManualLocation(e.target.value)}
                       placeholder="e.g., Bengaluru"
-                      className="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded"
+                      className="w-full text-sm p-2.5 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded focus:ring-1 focus:ring-blue-500 outline-none"
                     />
                   </div>
                   <div>
@@ -439,12 +446,12 @@ export default function SavedJobs() {
                       value={manualUrl}
                       onChange={(e) => setManualUrl(e.target.value)}
                       placeholder="https://..."
-                      className="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded"
+                      className="w-full text-sm p-2.5 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded focus:ring-1 focus:ring-blue-500 outline-none"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2 rounded transition-colors shadow-sm mt-2"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2.5 rounded transition-colors shadow-sm mt-3"
                   >
                     Add to Pipeline
                   </button>
@@ -457,12 +464,12 @@ export default function SavedJobs() {
         {/* Tab 2: Dedicated Grid View for Career Portals */}
         {activeTab === "portals" && (
           <div className="space-y-6 animate-fadeIn">
-            {/* Quick Add Custom Portal Form */}
+            {/* Quick Add Custom Portal Form - Responsive Flex */}
             <form
               onSubmit={handleAddPortal}
-              className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-3 gap-3 items-end shadow-sm"
+              className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col md:flex-row gap-4 items-stretch md:items-end shadow-sm"
             >
-              <div>
+              <div className="flex-1">
                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                   Target Company Name
                 </label>
@@ -472,10 +479,10 @@ export default function SavedJobs() {
                   value={newPortalName}
                   onChange={(e) => setNewPortalName(e.target.value)}
                   placeholder="e.g., Airbnb"
-                  className="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded"
+                  className="w-full text-sm p-2.5 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
-              <div>
+              <div className="flex-1">
                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                   Career Portal URL
                 </label>
@@ -485,30 +492,30 @@ export default function SavedJobs() {
                   value={newPortalUrl}
                   onChange={(e) => setNewPortalUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded"
+                  className="w-full text-sm p-2.5 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <button
                 type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2 px-4 rounded transition-colors shadow-sm h-[38px]"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2.5 px-5 rounded transition-colors shadow-sm shrink-0 h-[44px] md:h-[45px]"
               >
                 + Add Custom Portal
               </button>
             </form>
 
-            {/* Grid of 50+ Portals */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Grid of 50+ Portals - Fully Responsive Breakpoints */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {dreamCompanies.map((c, index) => (
                 <div
                   key={`${c.name}-${index}`}
-                  className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col justify-between hover:border-blue-400 dark:hover:border-blue-500 transition-all"
+                  className="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col justify-between gap-4 hover:border-blue-400 dark:hover:border-blue-500 transition-all group"
                 >
-                  <div>
-                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
+                  <div className="min-w-0 w-full">
+                    <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
                       {c.name}
                     </h3>
                     <p
-                      className="text-xs text-gray-400 dark:text-gray-500 mb-4 truncate w-full"
+                      className="text-xs text-gray-400 dark:text-gray-500 truncate w-full leading-relaxed"
                       title={c.url}
                     >
                       {new URL(c.url).hostname}
@@ -518,7 +525,7 @@ export default function SavedJobs() {
                     href={c.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full text-center bg-gray-50 hover:bg-blue-600 dark:bg-gray-700 text-gray-700 dark:text-gray-200 dark:hover:bg-blue-600 hover:text-white transition-colors text-sm font-medium py-2 rounded border border-gray-200 dark:border-gray-600 hover:border-transparent"
+                    className="w-full text-center bg-gray-50 hover:bg-blue-600 dark:bg-gray-700 text-gray-700 dark:text-gray-200 dark:hover:bg-blue-600 hover:text-white transition-colors text-xs sm:text-sm font-medium py-2.5 rounded border border-gray-200 dark:border-gray-600 hover:border-transparent shadow-xs"
                   >
                     Open Portal ↗
                   </a>

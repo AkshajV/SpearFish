@@ -66,7 +66,7 @@ export default function Home() {
   const rawList = isResumeMode ? resumeJobs : jobs;
   const isLoading = isResumeMode ? resumeLoading : loading;
 
-  // Apply client-side filters to the active list
+  // Apply client-side filters
   const displayedJobs = rawList.filter((job) => {
     const matchesSearch =
       search === "" ||
@@ -126,12 +126,21 @@ export default function Home() {
     }
   }, [page, search, location, minExp, maxExp, excludeCompany]);
 
+  // FIX: Only re-run the fetch effect when the page changes or mode swaps,
+  // preventing accidental API spam on every keystroke.
   useEffect(() => {
     if (!isResumeMode) fetchJobs();
-  }, [page, fetchJobs, isResumeMode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, isResumeMode]);
 
   const handleSearchClick = () => {
-    isResumeMode ? null : page === 1 ? fetchJobs() : setPage(1);
+    if (isResumeMode) return; // Client-side filtering handles this automatically
+
+    if (page === 1) {
+      fetchJobs();
+    } else {
+      setPage(1); // Changing page to 1 automatically triggers the useEffect above
+    }
   };
 
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -214,19 +223,19 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-8 transition-colors">
       <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 flex justify-between items-start">
+        {/* Header - Made Responsive */}
+        <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+            <h1 className="text-3xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400">
               SpearFish
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-2">
               Find your next role. Built for 0–2 years experience.
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
             <ThemeToggle />
             {session && (
               <Link
@@ -237,17 +246,17 @@ export default function Home() {
               </Link>
             )}
             {session ? (
-              <div className="flex items-center gap-4 bg-white dark:bg-gray-800 p-2 pr-4 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-3 bg-white dark:bg-gray-800 p-2 pr-4 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
                 {session.user?.image && (
                   <img
                     src={session.user.image}
                     alt="Profile"
-                    className="w-10 h-10 rounded-full"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
                   />
                 )}
-                <div className="text-sm">
-                  <p className="font-medium text-gray-800 dark:text-gray-100">
-                    {session.user?.name}
+                <div className="text-sm min-w-0">
+                  <p className="font-medium text-gray-800 dark:text-gray-100 truncate max-w-[120px] sm:max-w-none">
+                    {session.user?.name?.split(" ")[0]}
                   </p>
                   <button
                     onClick={() => signOut()}
@@ -260,7 +269,7 @@ export default function Home() {
             ) : (
               <button
                 onClick={() => signIn("google")}
-                className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 px-6 py-2.5 rounded-full shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition-colors"
+                className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 text-sm sm:text-base font-medium transition-colors ml-auto md:ml-0"
               >
                 Sign In
               </button>
@@ -268,7 +277,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── Resume Match Section ───────────────────────────────────────────── */}
+        {/* ── Resume Match Section - Made Responsive ────────────────────────── */}
         <div className="mb-6">
           <input
             ref={fileInputRef}
@@ -280,40 +289,40 @@ export default function Home() {
           {!isResumeMode && !resumeLoading && (
             <div
               onClick={() => !resumeLoading && fileInputRef.current?.click()}
-              className="cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-5 flex items-center justify-between hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors group"
+              className="cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-5 flex flex-col sm:flex-row items-center justify-between gap-4 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors group text-center sm:text-left"
             >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">📄</span>
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <span className="text-3xl sm:text-2xl mb-2 sm:mb-0">📄</span>
                 <div>
                   <p className="font-medium text-gray-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     Match jobs to your resume
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">
                     Upload a PDF — Gemini extracts your skills and reorders the
                     feed by relevance
                   </p>
                 </div>
               </div>
-              <span className="text-sm font-medium px-4 py-2 bg-blue-600 text-white rounded-lg group-hover:bg-blue-700 transition-colors shrink-0">
+              <span className="text-sm font-medium px-4 py-2 w-full sm:w-auto bg-blue-600 text-white rounded-lg group-hover:bg-blue-700 transition-colors shrink-0">
                 Upload PDF
               </span>
             </div>
           )}
           {resumeLoading && (
-            <div className="border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-5 flex items-center gap-4">
-              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />
+            <div className="border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-5 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4">
+              <div className="w-6 h-6 sm:w-5 sm:h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />
               <div>
                 <p className="font-medium text-blue-800 dark:text-blue-300">
                   Analyzing {resumeFileName}...
                 </p>
-                <p className="text-sm text-blue-600 dark:text-blue-400">
+                <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 mt-1 sm:mt-0">
                   Gemini is reading your resume and matching skills to jobs
                 </p>
               </div>
             </div>
           )}
           {resumeError && !resumeLoading && (
-            <div className="border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 rounded-lg p-4 flex items-center justify-between">
+            <div className="border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
               <p className="text-sm text-red-700 dark:text-red-300">
                 ⚠ {resumeError}
               </p>
@@ -322,76 +331,79 @@ export default function Home() {
                   setResumeError("");
                   fileInputRef.current?.click();
                 }}
-                className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
+                className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline shrink-0"
               >
                 Try again
               </button>
             </div>
           )}
           {isResumeMode && !resumeLoading && (
-            <div className="border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 rounded-lg p-5 space-y-3">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-green-600 dark:text-green-400 font-bold text-lg">
+            <div className="border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 rounded-lg p-4 sm:p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                <div className="flex items-start sm:items-center gap-3">
+                  <span className="text-green-600 dark:text-green-400 font-bold text-xl mt-0.5 sm:mt-0">
                     ✓
                   </span>
                   <div>
                     <p className="font-semibold text-green-800 dark:text-green-300">
                       Resume active
                     </p>
-                    <p className="text-sm text-green-700 dark:text-green-400 mt-0.5">
+                    <p className="text-xs sm:text-sm text-green-700 dark:text-green-400 mt-1 sm:mt-0.5 leading-relaxed">
                       {resumeProfile.summary}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={clearResume}
-                  className="shrink-0 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 border border-gray-300 dark:border-gray-600 px-3 py-1.5 rounded-md transition-colors"
+                  className="shrink-0 w-full sm:w-auto text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 border border-gray-300 dark:border-gray-600 px-3 py-2 sm:py-1.5 rounded-md transition-colors"
                 >
                   ✕ Clear
                 </button>
               </div>
-              {resumeProfile.suitable_job_titles.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 items-center">
-                  <span className="text-xs font-medium text-green-700 dark:text-green-400 mr-1">
-                    Target roles:
-                  </span>
-                  {resumeProfile.suitable_job_titles.map((title) => (
-                    <span
-                      key={title}
-                      className="text-xs px-2.5 py-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 rounded-full border border-green-200 dark:border-green-700 font-medium"
-                    >
-                      {title}
+              {/* Profile Chips */}
+              <div className="space-y-3">
+                {resumeProfile.suitable_job_titles.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 items-center">
+                    <span className="text-xs font-medium text-green-700 dark:text-green-400 mr-1 w-full sm:w-auto mb-1 sm:mb-0">
+                      Target roles:
                     </span>
-                  ))}
-                </div>
-              )}
-              {resumeProfile.skills.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 items-center">
-                  <span className="text-xs font-medium text-green-700 dark:text-green-400 mr-1">
-                    Skills:
-                  </span>
-                  {resumeProfile.skills.slice(0, 12).map((skill) => (
-                    <span
-                      key={skill}
-                      className="text-xs px-2.5 py-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full border border-green-200 dark:border-green-700"
-                    >
-                      {skill}
+                    {resumeProfile.suitable_job_titles.map((title) => (
+                      <span
+                        key={title}
+                        className="text-xs px-2.5 py-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 rounded-full border border-green-200 dark:border-green-700 font-medium"
+                      >
+                        {title}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {resumeProfile.skills.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 items-center">
+                    <span className="text-xs font-medium text-green-700 dark:text-green-400 mr-1 w-full sm:w-auto mb-1 sm:mb-0">
+                      Skills:
                     </span>
-                  ))}
-                  {resumeProfile.skills.length > 12 && (
-                    <span className="text-xs text-gray-400 dark:text-gray-500">
-                      +{resumeProfile.skills.length - 12} more
-                    </span>
-                  )}
-                </div>
-              )}
-              <p className="text-xs text-green-600 dark:text-green-500">
+                    {resumeProfile.skills.slice(0, 10).map((skill) => (
+                      <span
+                        key={skill}
+                        className="text-xs px-2.5 py-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full border border-green-200 dark:border-green-700"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                    {resumeProfile.skills.length > 10 && (
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        +{resumeProfile.skills.length - 10} more
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-green-600 dark:text-green-500 pt-2 border-t border-green-200 dark:border-green-800/50">
                 Showing {resumeJobs.length} jobs ranked by relevance to your
                 profile.{" "}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="underline hover:text-green-800 dark:hover:text-green-300"
+                  className="underline hover:text-green-800 dark:hover:text-green-300 font-medium ml-1"
                 >
                   Upload different resume
                 </button>
@@ -400,114 +412,157 @@ export default function Home() {
           )}
         </div>
 
-        {/* ── Always visible search controls ────────────────────────────────── */}
-        <div className="mb-8 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-wrap gap-4 items-center">
-          <input
-            type="text"
-            placeholder="Job title..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearchClick()}
-            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 rounded flex-grow"
-          />
-          <input
-            type="text"
-            placeholder="Location..."
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearchClick()}
-            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 rounded flex-grow"
-          />
-          <input
-            type="text"
-            placeholder="Exclude (e.g., PwC)"
-            value={excludeCompany}
-            onChange={(e) => setExcludeCompany(e.target.value)}
-            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 rounded w-48"
-          />
-          <div className="flex items-center gap-2">
+        {/* ── Responsive Search Controls Grid ───────────────────────────────── */}
+        <div className="mb-8 bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 sm:gap-4 items-end">
+          <div className="md:col-span-3">
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Role / Keywords
+            </label>
             <input
-              type="number"
-              value={minExp}
-              onChange={(e) => setMinExp(e.target.value)}
-              className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 rounded w-16 text-center"
-            />
-            <span className="text-gray-400">to</span>
-            <input
-              type="number"
-              value={maxExp}
-              onChange={(e) => setMaxExp(e.target.value)}
-              className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 rounded w-16 text-center"
+              type="text"
+              placeholder="Job title..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearchClick()}
+              className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 sm:p-2.5 rounded text-sm sm:text-base"
             />
           </div>
-          <button
-            onClick={handleSearchClick}
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-medium"
-          >
-            Search
-          </button>
+          <div className="md:col-span-3">
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Location
+            </label>
+            <input
+              type="text"
+              placeholder="Location..."
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearchClick()}
+              className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 sm:p-2.5 rounded text-sm sm:text-base"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Exclude Term
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. PwC"
+              value={excludeCompany}
+              onChange={(e) => setExcludeCompany(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearchClick()}
+              className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 sm:p-2.5 rounded text-sm sm:text-base"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Experience (Yrs)
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={minExp}
+                onChange={(e) => setMinExp(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearchClick()}
+                className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 sm:p-2.5 rounded text-center text-sm sm:text-base"
+              />
+              <span className="text-gray-400 shrink-0 text-sm">to</span>
+              <input
+                type="number"
+                value={maxExp}
+                onChange={(e) => setMaxExp(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearchClick()}
+                className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 sm:p-2.5 rounded text-center text-sm sm:text-base"
+              />
+            </div>
+          </div>
+          <div className="md:col-span-2 sm:col-span-2 pt-2 sm:pt-0">
+            <button
+              onClick={handleSearchClick}
+              className="w-full bg-blue-600 text-white px-4 py-2 sm:py-2.5 rounded hover:bg-blue-700 font-medium transition-colors shadow-sm text-sm sm:text-base h-[40px] sm:h-[44px]"
+            >
+              Search
+            </button>
+          </div>
         </div>
 
         {/* ── Job feed ──────────────────────────────────────────────────────────── */}
         <div className="grid gap-4 mb-8">
           {isLoading ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-              {isResumeMode
-                ? "Matching jobs to your resume..."
-                : "Loading jobs..."}
+            <div className="text-center py-16 text-gray-500 dark:text-gray-400 flex flex-col items-center gap-3">
+              <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+              <p>
+                {isResumeMode
+                  ? "Matching jobs to your resume..."
+                  : "Fetching jobs..."}
+              </p>
             </div>
           ) : displayedJobs.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-              {isResumeMode
-                ? "No jobs matched your resume. Try uploading a different version."
-                : "No jobs found. Try adjusting your filters."}
+            <div className="text-center py-16 px-4 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <span className="text-4xl mb-3 block">🎣</span>
+              <p className="font-medium text-lg text-gray-700 dark:text-gray-300">
+                No jobs found
+              </p>
+              <p className="mt-1 text-sm">
+                {isResumeMode
+                  ? "No jobs matched your resume. Try adjusting filters or uploading a different version."
+                  : "Try adjusting your filters or searching for something else."}
+              </p>
             </div>
           ) : (
             displayedJobs.map((job) => (
               <div
                 key={job.id}
-                className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all group"
               >
-                <div className="flex justify-between items-start gap-4">
-                  <div className="min-w-0">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white truncate">
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4">
+                  <div className="min-w-0 w-full sm:w-auto">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       {job.job_title}
                     </h2>
-                    <p className="text-gray-600 dark:text-gray-300">
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-0.5">
                       {job.company_name}
                     </p>
                   </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs font-medium px-2 py-1 rounded">
+                  <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 shrink-0 w-full sm:w-auto">
+                    <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs font-medium px-2.5 py-1 rounded-md border border-green-200 dark:border-green-800/50">
                       {job.experience_min === -1
                         ? "Unknown exp"
                         : `${job.experience_min}–${job.experience_max} yrs`}
                     </span>
                     {job.experience_level !== "Unknown" && (
-                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
                         {job.experience_level}
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="mt-4 flex justify-between items-center">
-                  <p className="text-gray-500 dark:text-gray-400 text-sm truncate max-w-xs">
-                    📍 {job.location || "Location not specified"}
+
+                <div className="mt-4 sm:mt-5 pt-4 sm:pt-0 sm:border-t-0 border-t border-gray-100 dark:border-gray-700/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <p className="text-gray-500 dark:text-gray-400 text-sm truncate max-w-full sm:max-w-sm flex items-center gap-1.5">
+                    <span className="shrink-0">📍</span>
+                    <span className="truncate">
+                      {job.location || "Location not specified"}
+                    </span>
                   </p>
-                  <div className="flex items-center gap-3 shrink-0">
+
+                  <div className="flex items-center gap-3 w-full sm:w-auto shrink-0 justify-between sm:justify-end">
                     <button
                       onClick={() => handleToggleSave(job.id)}
-                      className={`text-sm font-medium px-3 py-1.5 rounded-md transition-colors ${savedJobs.has(job.id) ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40" : "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50"}`}
+                      className={`text-sm font-medium px-4 py-2 rounded-md transition-colors w-1/2 sm:w-auto text-center ${
+                        savedJobs.has(job.id)
+                          ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-transparent"
+                          : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
+                      }`}
                     >
-                      {savedJobs.has(job.id) ? "✕ Unsave" : "Save Role"}
+                      {savedJobs.has(job.id) ? "✕ Unsave" : "🔖 Save Role"}
                     </button>
                     <a
                       href={job.job_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline"
+                      className="text-white bg-blue-600 hover:bg-blue-700 text-sm font-medium px-5 py-2 rounded-md transition-colors w-1/2 sm:w-auto text-center shadow-sm"
                     >
-                      View Job →
+                      Apply ↗
                     </a>
                   </div>
                 </div>
@@ -518,18 +573,18 @@ export default function Home() {
 
         {/* ── Pagination (normal mode only) ─────────────────────────────────────── */}
         {!isResumeMode && !isLoading && displayedJobs.length > 0 && (
-          <div className="flex justify-center items-center space-x-4 pt-4 border-t border-gray-200 dark:border-gray-800 pb-8">
+          <div className="flex justify-center items-center space-x-2 sm:space-x-4 pt-6 sm:pt-4 border-t border-gray-200 dark:border-gray-800 pb-8">
             <button
               onClick={() => {
                 setPage((p) => Math.max(p - 1, 1));
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               disabled={page === 1}
-              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium shadow-sm"
+              className="px-4 sm:px-5 py-2 sm:py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium shadow-sm"
             >
-              ← Previous
+              ← <span className="hidden sm:inline">Previous</span>
             </button>
-            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium px-2">
               Page {page}
             </span>
             <button
@@ -538,9 +593,9 @@ export default function Home() {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               disabled={displayedJobs.length < limit}
-              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium shadow-sm"
+              className="px-4 sm:px-5 py-2 sm:py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium shadow-sm"
             >
-              Next →
+              <span className="hidden sm:inline">Next</span> →
             </button>
           </div>
         )}
