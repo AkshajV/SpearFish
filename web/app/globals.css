@@ -1,0 +1,11 @@
+/* web/app/globals.css */
+@import "tailwindcss";
+
+/* This line tells Tailwind v4 to use the class-based dark mode! */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+    body {
+        @apply bg-white text-black dark:bg-gray-950 dark:text-white;
+    }
+}
