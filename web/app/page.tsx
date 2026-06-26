@@ -6,6 +6,9 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
 
+// Dynamically select the backend URL based on environment variables
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
 type Job = {
   id: string;
   job_title: string;
@@ -87,7 +90,7 @@ export default function Home() {
     if (!session?.user?.email) return;
     const fetchSavedIds = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/jobs/saved", {
+        const res = await fetch(`${BACKEND_URL}/api/jobs/saved`, {
           headers: { "X-User-Email": session.user!.email! },
         });
         const data: Job[] = await res.json();
@@ -102,7 +105,7 @@ export default function Home() {
   const fetchJobs = useCallback(async () => {
     setLoading(true);
     try {
-      const url = new URL("http://localhost:8080/api/jobs");
+      const url = new URL(`${BACKEND_URL}/api/jobs`);
       const offset = (page - 1) * limit;
       url.searchParams.append("limit", limit.toString());
       url.searchParams.append("offset", offset.toString());
@@ -150,7 +153,7 @@ export default function Home() {
     formData.append("resume", file);
 
     try {
-      const res = await fetch("http://localhost:8080/api/resume/match", {
+      const res = await fetch(`${BACKEND_URL}/api/resume/match`, {
         method: "POST",
         body: formData,
       });
@@ -191,7 +194,7 @@ export default function Home() {
       : { job_id: jobId, status: "Saved" };
 
     try {
-      const res = await fetch(`http://localhost:8080${endpoint}`, {
+      const res = await fetch(`${BACKEND_URL}${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,9 +1,13 @@
+// web/app/saved/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
+
+// Dynamically select the backend URL based on environment variables
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 type Job = {
   id: string;
@@ -174,7 +178,7 @@ export default function SavedJobs() {
   const fetchSaved = async () => {
     if (!session?.user?.email) return;
     try {
-      const res = await fetch("http://localhost:8080/api/jobs/saved", {
+      const res = await fetch(`${BACKEND_URL}/api/jobs/saved`, {
         headers: { "X-User-Email": session.user.email },
       });
       const data = await res.json();
@@ -195,7 +199,7 @@ export default function SavedJobs() {
   const handleUnsave = async (jobId: string) => {
     if (!session?.user?.email) return;
     try {
-      const res = await fetch("http://localhost:8080/api/jobs/unsave", {
+      const res = await fetch(`${BACKEND_URL}/api/jobs/unsave`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -217,7 +221,7 @@ export default function SavedJobs() {
     if (!manualTitle || !manualCompany || !session?.user?.email) return;
 
     try {
-      const res = await fetch("http://localhost:8080/api/jobs/manual", {
+      const res = await fetch(`${BACKEND_URL}/api/jobs/manual`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
