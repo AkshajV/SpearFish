@@ -270,7 +270,13 @@ func StartServer(pool *pgxpool.Pool) {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 func setCORSHeaders(w http.ResponseWriter, methods string) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	// 1. Check for the Render environment variable you just added
+	frontendURL := os.Getenv("NEXT_PUBLIC_API_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:3000" // Fallback for local development
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", frontendURL)
 	w.Header().Set("Access-Control-Allow-Methods", methods)
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-User-Email")
 }
